@@ -1,0 +1,15 @@
+{
+  "name": "nasty-koans",
+  "version": "0.0.1",
+  "description": "Get started with the next generation of data science tools ",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coterahq/nasty-koans.git"
+  },
+  "author": "cotera.co",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/coterahq/nasty-koans/issues"
+  },
+  "homepage": "https://github.com/coterahq/nasty-koans#readme"
+}
