@@ -1,5 +1,5 @@
 {
-  "name": "nasty-koans",
+  "name": "@cotera/nasty-koans",
   "version": "0.0.1",
   "description": "Get started with the next generation of data science tools ",
   "repository": {
@@ -10,6 +10,10 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/coterahq/nasty-koans/issues"
+  },
+  "dependencies": {
+      "@cotera/nasty": "^0.0.5",
+      "@cotera/nasty-drivers": "0.0.3"
   },
   "homepage": "https://github.com/coterahq/nasty-koans#readme"
 }
