@@ -6,14 +6,20 @@
     "type": "git",
     "url": "git+https://github.com/coterahq/nasty-koans.git"
   },
+  "scripts": {
+    "fmt": "npx @biomejs/biome format --write ./src"
+  },
   "author": "cotera.co",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/coterahq/nasty-koans/issues"
   },
   "dependencies": {
-      "@cotera/nasty": "^0.0.5",
-      "@cotera/nasty-drivers": "0.0.3"
+    "@cotera/nasty": "^0.0.5",
+    "@cotera/nasty-drivers": "0.0.3"
   },
-  "homepage": "https://github.com/coterahq/nasty-koans#readme"
+  "homepage": "https://github.com/coterahq/nasty-koans#readme",
+  "devDependencies": {
+    "@biomejs/biome": "1.5.3"
+  }
 }
