@@ -20,6 +20,12 @@
   },
   "homepage": "https://github.com/coterahq/nasty-koans#readme",
   "devDependencies": {
-    "@biomejs/biome": "1.5.3"
+    "@biomejs/biome": "1.5.3",
+    "@types/bun": "latest"
+  },
+  "module": "index.ts",
+  "type": "module",
+  "peerDependencies": {
+    "typescript": "^5.0.0"
   }
 }
