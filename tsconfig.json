@@ -6,7 +6,6 @@
     "moduleDetection": "force",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
     "noEmit": true,
     "strict": true,
     "skipLibCheck": true,
@@ -15,6 +14,7 @@
     "noFallthroughCasesInSwitch": true,
     "useUnknownInCatchVariables": true,
     "noPropertyAccessFromIndexSignature": true,
-    "types": ["@types/bun"]
+    "esModuleInterop": true,
+    "types": ["@types/jest"]
   }
 }

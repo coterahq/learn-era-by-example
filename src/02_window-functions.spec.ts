@@ -1,8 +1,7 @@
 import { Asc, Values } from "@cotera/nasty";
 import { db, CHANGE_ME } from "./helpers";
-import { describe, test, expect } from "bun:test";
 
-describe("02_window-functions", () => {
+describe("Window Functions", () => {
 	// Section Goals
 	//
 	// 1. Use Rank
