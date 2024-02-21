@@ -18,7 +18,7 @@ describe("The basics", () => {
 		// 4. Learn how to rename an existing attribute
 		// 5. Learn how to rename _all_ attributes
 
-		test("learn to complete a koan", async () => {
+		test("learn to complete an example", async () => {
 			const query = Values(data).select((_t) => {
 				return CHANGE_ME();
 				// Hint: here's the answer
