@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@cotera/nasty": "^0.0.5",
-    "@cotera/nasty-drivers": "0.0.3"
+    "@electric-sql/pglite": "^0.0.1-debug.2"
   },
   "homepage": "https://github.com/coterahq/learn-nasty-by-example#readme",
   "devDependencies": {
