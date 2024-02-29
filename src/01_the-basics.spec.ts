@@ -1,5 +1,6 @@
 import { Asc, Desc, Values } from "@cotera/nasty";
 import { db, CHANGE_ME } from "./helpers";
+import { describe, test, expect } from 'vitest';
 
 const data = [
 	{ a: 1, b: "Foo" },

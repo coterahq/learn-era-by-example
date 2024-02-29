@@ -40,5 +40,5 @@ test("I'm a description of the example", () => {
 
 #### `npm i`
 
-#### `npm run test -- --watch-all`
+#### `npx vitest`
 

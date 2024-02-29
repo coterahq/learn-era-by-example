@@ -1,5 +1,6 @@
 import { Asc, Values } from "@cotera/nasty";
 import { db, CHANGE_ME } from "./helpers";
+import { describe, test, expect } from 'vitest';
 
 describe("Window Functions", () => {
 	// Section Goals
