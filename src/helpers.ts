@@ -9,4 +9,3 @@ export const CHANGE_ME = () => {
 };
 
 export const db = () => DuckDbNativeDriver.emphemeral();
-

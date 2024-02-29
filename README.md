@@ -15,7 +15,13 @@ more advanced and show of more powerful analytics tools.
 
 ## How is this structured
 
-This repository is structured in terms of individual examples
+### The `.learn.ts` files 
+
+each `.learn.ts` file contains examples of how to use the concept in nasty. Start in these files to see examples on how to use a concept
+
+### The `.test.ts` files
+
+These let you apply the skills you've learned in examples by fixing unit tests
 
 ```typescript
 test.skip("I'm a description of the example", () => {
@@ -41,4 +47,8 @@ test("I'm a description of the example", () => {
 #### `npm i`
 
 #### `npx vitest`
+
+## Developing new examples
+
+Run the `.learn.ts` files via `TEST_LEARN=true npx vitest`
 
