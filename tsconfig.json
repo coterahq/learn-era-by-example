@@ -15,6 +15,6 @@
     "useUnknownInCatchVariables": true,
     "noPropertyAccessFromIndexSignature": true,
     "esModuleInterop": true,
-    "types": []
+    "types": ["node"]
   }
 }
