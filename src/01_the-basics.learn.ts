@@ -167,39 +167,47 @@ describe(Relation.name, () => {
     // relation. This involves creating new columns which are functions of the
     // old columns.
 
-    const SomeData: Relation = Values([
-      { a: 2, b: "Foo", c: true },
-      { a: 2, b: "Bar", c: false },
-      { a: 3, b: "Baz", c: true },
-    ]);
+    // We can use the `.select` method to create a pipeline of operations
+    const Pipeline =
+      // We start from some table
+      From({
+        name: "foo",
+        schema: "bar",
+        attributes: { a: "int", b: "int", c: "int" },
+      })
+        // We can use `t.star()` which is roughly the same as `select * from ...`
+        .select((t) => ({ ...t.star() }))
+        // The "select" API works with a regular old Javascript object, so you
+        // can use spreading or other object functionality to decide what attributes you want
+        //
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
+        .select((t) => ({
+          // This "spreads" * into the new attributes
+          ...t.star(),
+          // This creates a new attribute called "d" with a value of 1
+          d: 1,
+          // This creates a new attribute called "better_a" that is equal to
+          // the previous relations's "a" attribute +1
+          better_a: t.attr("a").add(1),
+        }))
+        // We can "pick" just the attributes we want, Nasty has access to the
+        // type check information after every select, so it can use that to both
+        // typecheck and dyanmicly adjust the columns selected
+        .select((t) => ({ ...t.pick("a", "b", "d") }))
+        // We can also do the "reverse" of `.pick` with `.except`, which returns all the attributes _except_ the selected attributes
+        .select((t) => ({ ...t.except("b") }))
+        // Nasty makes bulk renaming a breeze
+        .select((t) => ({
+          ...t.renameWith((oldName) => `some_prefix_${oldName}`),
+        }));
 
-    // The `.star` method works similarly `select * from $PREVIOUS_RELATION`
-    const SelectedStar = SomeData.select((t) => ({ ...t.star() }));
-    console.log(SelectedStar.bigQuerySql.sql);
-    expect(SelectedStar.postgresSql.sql).toEqual(
-      // We see cte1 which represents our `SomeData` values clause, the last
-      // line of the query represents selecting * from cte1. Notice how Nasty
-      // doesn't actually ever use the `*` shorthand. Since Nasty knows the
-      // column names via the type checker it can select those columns them directly.
-      `
-with "cte1" as (
-  (select arg_0 as "a", arg_1 as "b", arg_2 as "c" from (values (2, 'Foo', true), (2, 'Bar', false), (3, 'Baz', true)) as vals(arg_0, arg_1, arg_2))
-)
-select "a" as "a", "b" as "b", "c" as "c" from "cte1"
-`.trim(),
-    );
-
-    // You can also use the `.pick` or `.expect` methods to only select specific attributes
-    const PickingWantedAttributes = SomeData.select((t) => t.pick("a", "b"));
-    const ExceptingUnwantedAttributes = SomeData.select((t) => t.except("c"));
-    expect(PickingWantedAttributes.postgresSql).toEqual(
-      ExceptingUnwantedAttributes.postgresSql,
-    );
+    expect(Pipeline.attributes).toEqual({
+      some_prefix_a: Ty.ty("int"),
+      some_prefix_d: Ty.ty("int"),
+    });
   });
 });
 
-// renaming attributes
-// creating new attributes from constant
 // where clause
 // logical operators and/or/not
 // distinct
