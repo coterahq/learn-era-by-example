@@ -194,30 +194,42 @@ describe(Relation.name, () => {
         // type check information after every select, so it can use that to both
         // typecheck and dyanmicly adjust the columns selected
         .select((t) => ({ ...t.pick("a", "b", "d") }))
-        // We can also do the "reverse" of `.pick` with `.except`, which returns all the attributes _except_ the selected attributes
+        // We can also do the "reverse" of `.pick` with `.except`, which
+        // returns all the attributes _except_ the selected attributes
         .select((t) => ({ ...t.except("b") }))
         // Nasty makes bulk renaming a breeze
         .select((t) => ({
           ...t.renameWith((oldName) => `some_prefix_${oldName}`),
-        }));
+        }))
+        // Nasty supports `distinct` in `.select`
+        .select((t) => ({ ...t.star() }), { distinct: true });
 
     expect(Pipeline.attributes).toEqual({
       some_prefix_a: Ty.ty("int"),
-      some_prefix_d: Ty.ty("int"),
+      some_prefix_d: Ty.nn("int"),
     });
   });
-});
 
-// where clause
-// logical operators and/or/not
-// distinct
-// order by
-// limit
-// UnionAll
-//
-//
-// generating different types of SQL
-//
-// New learn.ts: math operations
-// New learn.ts:  aggregates (group by, count by, other agg functions)
-// New learn.ts: windows
+  test("using the `.where` method", async () => {
+    // The `Relation`'s `.where` method allows for filtering relations
+
+    // Imagine we have 3 rows, each with one attribute named "foo" which is an integer
+    const SomeData = Values([{ foo: 1 }, { foo: 10 }, { foo: 100 }]);
+
+    // By default all three rows are included
+    expect(await SomeData.execute(db())).toHaveLength(3);
+
+    // We can use the `.where` clause to filter the rows where "foo" is not
+    // greater than 5
+    expect(
+      await SomeData.where((t) => t.attr("foo").gt(5)).execute(db()),
+    ).toEqual([{ foo: 10 }, { foo: 100 }]);
+
+    // We can chain multiple where clauses
+    expect(
+      await SomeData.where((t) => t.attr("foo").gt(5))
+        .where((t) => t.attr("foo").lt(20))
+        .execute(db()),
+    ).toEqual([{ foo: 10 }]);
+  });
+});
