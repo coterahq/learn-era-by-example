@@ -2,7 +2,7 @@ import { Eq, From, Ty, Values } from "@cotera/nasty";
 import { test, expect } from "vitest";
 import { db } from "./helpers";
 
-// Welcome to Nasty, the "post-modern" data stack!
+// # Welcome to Nasty, the "post-modern" data stack!
 //
 // Q. Why does Nasty exist?
 //
@@ -55,7 +55,7 @@ test("Using nasty to generate SQL", () => {
   );
 });
 
-test("See the type checker", () => {
+test("Introduction to the type checker", () => {
   // A really powerful part of nasty is that it ships with a _full_ relational
   // algebra type checker. Nasty's goal is to be able to tell if a query is
   // valid _before_ running it. This allows for fast feedback on how a
@@ -102,16 +102,16 @@ test("See the type checker", () => {
     quantity: Ty.nn("int"),
   });
 
-  // The Nasty typechecker will analyze your relations and give you instant
-  // feedback if something you're doing is invalid. Nasty calls into JS's
-  // runtime to show you the exact line number of the error (this is hard to
-  // show in docs but very powerful when actually writing Nasty)
+  // The Nasty type checker will analyze your relations and give you instant
+  // feedback if something you're doing is invalid.
+  //
   expect(() =>
     CustomerOrderStats.select((t) => ({
       ...t.pick("id", "state", "oops_invalid_attribute!"),
     })),
   ).toThrowError(
-    // Error messages include helpful tips! A missing attribute lists out all the attributes that do exist and their types
+    // Error messages include helpful tips! For example a missing attribute
+    // lists out all the attributes that _do_ exist (with their types)
     `NoSuchAttribute - "oops_invalid_attribute!" does not exist in 
 (
   "id" int NOT NULL,
@@ -125,9 +125,31 @@ TraceBack:
   );
 });
 
-// Values
-test("Basic Values Examples", async () => {
-  // Values clauses are a way to manually input data that you can later manipulate in Nasty.
+test("Introducing the `Values` clause", async () => {
+  // Nasty has good interop with Javascript values. One thing it implements for
+  // every warehouse is `Values`, which are a way of treating Javascript objects like rows.
+  // This can be a handy Swiss Army Knife to move small tables around and write unit tests.
+
+  // Here we're setting `SomeData` to be a `Relation` that's a values clause
+  const SomeData = Values([{ n: 1 }, { n: 2 }]);
+
+  // Nasty will infer the type of `SomeData` to be a table with a single column
+  // named `n` of type `"int"`
+  expect(SomeData.attributes).toEqual({ n: Ty.nn("int") });
+
+  // We can see the SQL this compiles to.
+  expect(SomeData.postgresSql.sql).toEqual(
+    '(select arg_0 as "n" from (values (1), (2)) as vals(arg_0))',
+  );
+  expect(SomeData.snowflakeSql.sql).toEqual(
+    `select cast(value['n'] as integer) as "n" from table (flatten(input => parse_json((:1))))`,
+  );
+  // etc...
+
+  // Any relation (including `Values`) can be executed on a database connection
+  // by using the `.execute` method
+  //
+  // This is running on an in memory DuckDB instance
   const res = await Values([{ n: 1 }, { n: 2 }]).execute(db());
   expect(res).toEqual([{ n: 1 }, { n: 2 }]);
 });
