@@ -1,5 +1,5 @@
-import { Eq, From, Ty, Values } from "@cotera/nasty";
-import { test, expect } from "vitest";
+import { Eq, From, Relation, Ty, Values } from "@cotera/nasty";
+import { test, expect, describe } from "vitest";
 import { db } from "./helpers";
 
 // # Welcome to Nasty, the "post-modern" data stack!
@@ -154,47 +154,52 @@ test("Introducing the `Values` clause", async () => {
   expect(res).toEqual([{ n: 1 }, { n: 2 }]);
 });
 
-test("select attributes", async () => {
-  // In nasty you can select all attributes of a table using the `star` method, similar to SQL.
-  const data = Values([
-    { a: 1, b: "Foo" },
-    { a: 2, b: "Bar" },
-    { a: 3, b: "Baz" },
-  ]);
+describe(Relation.name, () => {
+  // This section explores a core Nasty concept called `Relation`. Relations
+  // are similar to "tables" in SQL, they have one or more columns that have
+  // names and types. They represent 0 or more rows that have those types
+  //
+  // Relations are immutable, all operations return new relations without
+  // affecting the old relation.
 
-  // These three queries are equivalent
-  const query1 = data.select((t) => t.star());
-  const query2 = data.select((t) => ({ ...t.star() }));
+  test("Using the `.select` method", async () => {
+    // The select method is used to "project" the relation into another
+    // relation. This involves creating new columns which are functions of the
+    // old columns.
 
-  // Both queries will return the same result
-  const res = [
-    { a: 1, b: "Foo" },
-    { a: 2, b: "Bar" },
-    { a: 3, b: "Baz" },
-  ];
+    const SomeData: Relation = Values([
+      { a: 2, b: "Foo", c: true },
+      { a: 2, b: "Bar", c: false },
+      { a: 3, b: "Baz", c: true },
+    ]);
 
-  expect(await query1.execute(db())).toEqual(res);
-  expect(await query2.execute(db())).toEqual(res);
+    // The `.star` method works similarly `select * from $PREVIOUS_RELATION`
+    const SelectedStar = SomeData.select((t) => ({ ...t.star() }));
+    console.log(SelectedStar.bigQuerySql.sql);
+    expect(SelectedStar.postgresSql.sql).toEqual(
+      // We see cte1 which represents our `SomeData` values clause, the last
+      // line of the query represents selecting * from cte1. Notice how Nasty
+      // doesn't actually ever use the `*` shorthand. Since Nasty knows the
+      // column names via the type checker it can select those columns them directly.
+      `
+with "cte1" as (
+  (select arg_0 as "a", arg_1 as "b", arg_2 as "c" from (values (2, 'Foo', true), (2, 'Bar', false), (3, 'Baz', true)) as vals(arg_0, arg_1, arg_2))
+)
+select "a" as "a", "b" as "b", "c" as "c" from "cte1"
+`.trim(),
+    );
 
-  // You can also pick attributes by name, similar to SQL.
-
-  // Similar to query1 and query2, you can use ... to expand the t.pick or use it stand alone
-  const query3 = data.select((t) => t.pick("a", "b"));
-  const query4 = data.select((t) => ({ ...t.pick("a", "b") }));
-
-  expect(await query3.execute(db())).toEqual(res);
-  expect(await query4.execute(db())).toEqual(res);
-
-  // Alternatively, you can use the `attr` method to select a single attribute.
-  // This query is another equivalent way to select all attributes.
-  const query5 = data.select((t) => ({ a: t.attr("a"), b: t.attr("b") }));
-
-  expect(await query5.execute(db())).toEqual(res);
+    // You can also use the `.pick` or `.expect` methods to only select specific attributes
+    const PickingWantedAttributes = SomeData.select((t) => t.pick("a", "b"));
+    const ExceptingUnwantedAttributes = SomeData.select((t) => t.except("c"));
+    expect(PickingWantedAttributes.postgresSql).toEqual(
+      ExceptingUnwantedAttributes.postgresSql,
+    );
+  });
 });
 
 // renaming attributes
 // creating new attributes from constant
-// show errors when trying to select non-existing attributes
 // where clause
 // logical operators and/or/not
 // distinct
