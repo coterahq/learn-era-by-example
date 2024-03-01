@@ -1,56 +1,213 @@
-import { Values } from "@cotera/nasty";
-import { test, expect } from "vitest";
+import { Eq, From, Relation, Ty, Values } from "@cotera/nasty";
+import { test, expect, describe } from "vitest";
 import { db } from "./helpers";
 
-// Values
+// # Welcome to Nasty, the "post-modern" data stack!
+//
+// Q. Why does Nasty exist?
+//
+// A. Nasty was built to maintain testable/composable data pipelines. Our team
+// was ripping our hair out trying to maintain dbt/SQL scripts across different
+// data warehouses (Redshift, BigQuery, Postgres, Snowflake) on top of ever
+// shifting data foundations maintained by our customer's internal data teams.
+// Nasty is the result of our learnings from field experience.
+//
+// Q. Is Nasty an ORM? A SQL builder?
+//
+// A. Neither! Nasty is kinda it's own thing. Nasty is more like a minimal
+// relational algebra programming language shipped as a Typescript library. It
+// borrows a bunch of learnings from other programming languages and applies
+// them to OLAP programming / data engineering.
+//
+// Q. Why is it called Nasty?
+//
+// A. Nasty stands for (Nasty Abstract Syntax Tree Thing-y). Nasty is named
+// after the fact it defines an "abstract syntax tree (AST)" as its main
+// interface, as opposed to SQL which exposes a text format
 
-test("Basic Values Examples", async () => {
-  // Values clauses are a way to manually input data that you can later manipulate in nasty.
+test("Using nasty to generate SQL", () => {
+  // Nasty can be used to generate data{base, warehouse} specific SQL. Nasty
+  // ships with a SQL generator that supports many different dialects.
+
+  const Tab = From({
+    schema: "some_schema",
+    name: "some_table_name",
+    attributes: {
+      foo: "string",
+      bar: "int",
+    },
+  }).filter((t) => t.attr("bar").gt(2));
+
+  expect(Tab.postgresSql.sql).toEqual(
+    'select "bar" as "bar", "foo" as "foo" from "some_schema"."some_table_name" where ("bar" > 2)',
+  );
+
+  expect(Tab.bigQuerySql.sql).toEqual(
+    "select `bar` as `bar`, `foo` as `foo` from `some_schema`.`some_table_name` where (`bar` > 2)",
+  );
+
+  expect(Tab.snowflakeSql.sql).toEqual(
+    'select "bar" as "bar", "foo" as "foo" from "some_schema"."some_table_name" where ("bar" > 2)',
+  );
+
+  expect(Tab.redshiftSql.sql).toEqual(
+    'select "bar" as "bar", "foo" as "foo" from "some_schema"."some_table_name" where ("bar" > 2)',
+  );
+});
+
+test("Introduction to the type checker", () => {
+  // A really powerful part of nasty is that it ships with a _full_ relational
+  // algebra type checker. Nasty's goal is to be able to tell if a query is
+  // valid _before_ running it. This allows for fast feedback on how a
+  // potential change will affect your entire pipeline.
+
+  const Orders = From({
+    schema: "public",
+    name: "orders",
+    attributes: {
+      // Nasty keeps track of nullability
+      customer_id: { ty: "int", nullable: false },
+      // The `Ty` library has helpful type manipulation helpers
+      quantity: Ty.nn("int"),
+    },
+  });
+
+  const Customers = From({
+    schema: "public",
+    name: "customers",
+    attributes: { id: Ty.nn("int"), state: "string" },
+  });
+
+  // Nasty will keep track of the attributes a relation has and calculates the
+  // resulting types of each operation. Nasty models the full expression
+  // language, joins, windows, and aggregates.
+  //
+  // All of this information is available to tooling, unit testing, and meta
+  // programming. Making changes on your data sources will show the type errors
+  // all the way up to your visualization layer ands reverse ETL processes! Never
+  // again wonder what will break when you change a foundational model.
+  const CustomerOrderStats = Customers.leftJoin(Orders, (customer, orders) => ({
+    on: Eq(customer.attr("id"), orders.attr("customer_id")),
+    select: {
+      ...customer.star(),
+      ...orders.pick("quantity"),
+    },
+  }));
+
+  // Nasty analyzed the join and figures out the types of the output relation
+  // (including nullability!)
+  expect(CustomerOrderStats.attributes).toEqual({
+    id: Ty.nn("int"),
+    state: Ty.ty("string"),
+    quantity: Ty.nn("int"),
+  });
+
+  // The Nasty type checker will analyze your relations and give you instant
+  // feedback if something you're doing is invalid.
+  //
+  expect(() =>
+    CustomerOrderStats.select((t) => ({
+      ...t.pick("id", "state", "oops_invalid_attribute!"),
+    })),
+  ).toThrowError(
+    // Error messages include helpful tips! For example a missing attribute
+    // lists out all the attributes that _do_ exist (with their types)
+    `NoSuchAttribute - "oops_invalid_attribute!" does not exist in 
+(
+  "id" int NOT NULL,
+  "state" string,
+  "quantity" int NOT NULL
+)
+
+TraceBack:
+ -> attr - "from"
+`,
+  );
+});
+
+test("Introducing the `Values` clause", async () => {
+  // Nasty has good interop with Javascript values. One thing it implements for
+  // every warehouse is `Values`, which are a way of treating Javascript objects like rows.
+  // This can be a handy Swiss Army Knife to move small tables around and write unit tests.
+
+  // Here we're setting `SomeData` to be a `Relation` that's a values clause
+  const SomeData = Values([{ n: 1 }, { n: 2 }]);
+
+  // Nasty will infer the type of `SomeData` to be a table with a single column
+  // named `n` of type `"int"`
+  expect(SomeData.attributes).toEqual({ n: Ty.nn("int") });
+
+  // We can see the SQL this compiles to.
+  expect(SomeData.postgresSql.sql).toEqual(
+    '(select arg_0 as "n" from (values (1), (2)) as vals(arg_0))',
+  );
+  expect(SomeData.snowflakeSql.sql).toEqual(
+    `select cast(value['n'] as integer) as "n" from table (flatten(input => parse_json((:1))))`,
+  );
+  // etc...
+
+  // Any relation (including `Values`) can be executed on a database connection
+  // by using the `.execute` method
+  //
+  // This is running on an in memory DuckDB instance
   const res = await Values([{ n: 1 }, { n: 2 }]).execute(db());
   expect(res).toEqual([{ n: 1 }, { n: 2 }]);
 });
 
-test("select attributes", async () => {
-  // In nasty you can select all attributes of a table using the `star` method, similar to SQL.
-  const data = Values([
-    { a: 1, b: "Foo" },
-    { a: 2, b: "Bar" },
-    { a: 3, b: "Baz" },
-  ]);
+describe(Relation.name, () => {
+  // This section explores a core Nasty concept called `Relation`. Relations
+  // are similar to "tables" in SQL, they have one or more columns that have
+  // names and types. They represent 0 or more rows that have those types
+  //
+  // Relations are immutable, all operations return new relations without
+  // affecting the old relation.
 
-  // These three queries are equivalent
-  const query1 = data.select((t) => t.star());
-  const query2 = data.select((t) => ({ ...t.star() }));
+  test("Using the `.select` method", async () => {
+    // The select method is used to "project" the relation into another
+    // relation. This involves creating new columns which are functions of the
+    // old columns.
 
-  // Both queries will return the same result
-  const res = [
-    { a: 1, b: "Foo" },
-    { a: 2, b: "Bar" },
-    { a: 3, b: "Baz" },
-  ];
+    // We can use the `.select` method to create a pipeline of operations
+    const Pipeline =
+      // We start from some table
+      From({
+        name: "foo",
+        schema: "bar",
+        attributes: { a: "int", b: "int", c: "int" },
+      })
+        // We can use `t.star()` which is roughly the same as `select * from ...`
+        .select((t) => ({ ...t.star() }))
+        // The "select" API works with a regular old Javascript object, so you
+        // can use spreading or other object functionality to decide what attributes you want
+        //
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
+        .select((t) => ({
+          // This "spreads" * into the new attributes
+          ...t.star(),
+          // This creates a new attribute called "d" with a value of 1
+          d: 1,
+          // This creates a new attribute called "better_a" that is equal to
+          // the previous relations's "a" attribute +1
+          better_a: t.attr("a").add(1),
+        }))
+        // We can "pick" just the attributes we want, Nasty has access to the
+        // type check information after every select, so it can use that to both
+        // typecheck and dyanmicly adjust the columns selected
+        .select((t) => ({ ...t.pick("a", "b", "d") }))
+        // We can also do the "reverse" of `.pick` with `.except`, which returns all the attributes _except_ the selected attributes
+        .select((t) => ({ ...t.except("b") }))
+        // Nasty makes bulk renaming a breeze
+        .select((t) => ({
+          ...t.renameWith((oldName) => `some_prefix_${oldName}`),
+        }));
 
-  expect(await query1.execute(db())).toEqual(res);
-  expect(await query2.execute(db())).toEqual(res);
-
-  // You can also pick attributes by name, similar to SQL.
-
-  // Similar to query1 and query2, you can use ... to expand the t.pick or use it stand alone
-  const query3 = data.select((t) => t.pick("a", "b"));
-  const query4 = data.select((t) => ({ ...t.pick("a", "b") }));
-
-  expect(await query3.execute(db())).toEqual(res);
-  expect(await query4.execute(db())).toEqual(res);
-
-  // Alternatively, you can use the `attr` method to select a single attribute.
-  // This query is another equivalent way to select all attributes.
-  const query5 = data.select((t) => ({ a: t.attr("a"), b: t.attr("b") }));
-
-  expect(await query5.execute(db())).toEqual(res);
+    expect(Pipeline.attributes).toEqual({
+      some_prefix_a: Ty.ty("int"),
+      some_prefix_d: Ty.ty("int"),
+    });
+  });
 });
 
-// renaming attributes
-// creating new attributes from constant
-// show errors when trying to select non-existing attributes
 // where clause
 // logical operators and/or/not
 // distinct
