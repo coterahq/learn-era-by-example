@@ -20,8 +20,8 @@ describe("The basics", () => {
     // 5. Learn how to rename _all_ attributes
 
     test("learn to complete an example", async () => {
-      const query = Values(data).select((_t) => {
-        return CHANGE_ME();
+      const query = Values(data).select((t) => {
+        return CHANGE_ME(t);
         // Hint: here's the answer
         // return {
         //   a: t.attr('a'),
@@ -37,8 +37,8 @@ describe("The basics", () => {
     });
 
     test.skip("select star", async () => {
-      const query = Values(data).select((_t) => {
-        return CHANGE_ME();
+      const query = Values(data).select((t) => {
+        return CHANGE_ME(t);
       });
 
       expect(await query.execute(db())).toEqual([
@@ -174,7 +174,6 @@ describe("The basics", () => {
     // 0. Sort with a limit
     // 1. Sort on an attribute
     // 2. Use `Asc` and `Desc` to sort in a particular direction
-    //
 
     test.skip("sort with a limit", async () => {
       const query = Values(data).sort((t) => Asc(t.attr("a")), { limit: 10 });
