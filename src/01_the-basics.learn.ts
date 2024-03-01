@@ -1,4 +1,4 @@
-import { Eq, From, Relation, Ty, Values } from "@cotera/nasty";
+import { Asc, Desc, Eq, From, Relation, Ty, Values } from "@cotera/nasty";
 import { test, expect, describe } from "vitest";
 import { db } from "./helpers";
 
@@ -162,7 +162,7 @@ describe(Relation.name, () => {
   // Relations are immutable, all operations return new relations without
   // affecting the old relation.
 
-  test("Using the `.select` method", async () => {
+  test("the `.select` method", async () => {
     // The select method is used to "project" the relation into another
     // relation. This involves creating new columns which are functions of the
     // old columns.
@@ -210,7 +210,7 @@ describe(Relation.name, () => {
     });
   });
 
-  test("using the `.where` method", async () => {
+  test("the `.where` method", async () => {
     // The `Relation`'s `.where` method allows for filtering relations
 
     // Imagine we have 3 rows, each with one attribute named "foo" which is an integer
@@ -231,5 +231,61 @@ describe(Relation.name, () => {
         .where((t) => t.attr("foo").lt(20))
         .execute(db()),
     ).toEqual([{ foo: 10 }]);
+  });
+
+  test("the `.sort` method", async () => {
+    // You can sort relations using `Asc` and `Desc`
+
+    const SomeData = Values([{ foo: 1 }, { foo: 10 }, { foo: 100 }]);
+
+    expect(
+      await SomeData.sort((t) => Asc(t.attr("foo"))).execute(db()),
+    ).toEqual([{ foo: 1 }, { foo: 10 }, { foo: 100 }]);
+
+    expect(
+      await SomeData.sort((t) => Desc(t.attr("foo"))).execute(db()),
+    ).toEqual([{ foo: 100 }, { foo: 10 }, { foo: 1 }]);
+
+    // Alternatively the `.select` method provides a `sort` parameter
+    expect(
+      await SomeData.select((t) => t.star(), {
+        sort: (t) => Desc(t.attr("foo")),
+      }).execute(db()),
+    ).toEqual([{ foo: 100 }, { foo: 10 }, { foo: 1 }]);
+
+    // NOTE: sorts do not automatically propogate through multiple CTEs.
+    // Warehouses are allowed to (and do in practice) ignore sorts that
+    // aren't top level. Nasty SQL gen may eventually add more `sort`
+    // garuntees, but currently makes no effort to preserve sorts that aren't
+    // top level
+  });
+
+  test("the `.limit` method", async () => {
+    const SomeData = Values([{ foo: 1 }, { foo: 10 }, { foo: 100 }]);
+
+    // This table has 3 rows
+    expect(await SomeData.execute(db())).toHaveLength(3);
+
+    // We can limit the respose using the `.limit` method
+    expect(await SomeData.limit(1).execute(db())).toHaveLength(1);
+
+    // Alternatively, we can add the `limit` parameter in a `.select`
+    expect(
+      await SomeData.select((t) => t.star(), {
+        limit: 1,
+        offset: 1,
+        sort: (t) => Asc(t.attr("foo")),
+      }).execute(db()),
+    ).toEqual([{ foo: 10 }]);
+
+    // As an advanced feature we provied `assertLimit` which fails the query if
+    // there are more rows in the underlying relation than the limit
+    expect(await SomeData.assertLimit(10).execute(db())).toHaveLength(3);
+
+    // This fails the query while the query is running, meaning you can use it
+    // to fail transactions that have an unexpected number of rows
+    await expect(SomeData.assertLimit(1).execute(db())).rejects.toThrow(
+      "Invariant *LIMIT IS BELOW 1* failed!",
+    );
   });
 });
