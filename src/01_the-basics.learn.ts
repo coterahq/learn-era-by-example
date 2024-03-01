@@ -25,11 +25,9 @@ import { db } from "./helpers";
 // after the fact it defines an "abstract syntax tree (AST)" as its main
 // interface, as opposed to SQL which exposes a text format
 
-test("using nasty to generate SQL", () => {
+test("Using nasty to generate SQL", () => {
   // Nasty can be used to generate data{base, warehouse} specific SQL. Nasty
-  // ships with a SQL generator that supports many different data{base,
-  // warehouse} dialects. For the purposes of the rest of the tutorial we're
-  // going to run on DuckDB on your machine, but this shows _how_ sql gen works
+  // ships with a SQL generator that supports many different dialects.
 
   const Tab = From({
     schema: "some_schema",
@@ -57,10 +55,11 @@ test("using nasty to generate SQL", () => {
   );
 });
 
-// Typechecking
 test("See the type checker", () => {
-  // The most poweful part of nasty is that it ships with a _full_ typechecker.
-  // Nasty's goal is to be able to tell if a query is valid _before_ running it.
+  // A really powerful part of nasty is that it ships with a _full_ relational
+  // algebra type checker. Nasty's goal is to be able to tell if a query is
+  // valid _before_ running it. This allows for fast feedback on how a
+  // potential change will affect your entire pipeline.
 
   const Orders = From({
     schema: "public",
@@ -68,7 +67,7 @@ test("See the type checker", () => {
     attributes: {
       // Nasty keeps track of nullability
       customer_id: { ty: "int", nullable: false },
-      // The `Ty` library has helpful type manipulations
+      // The `Ty` library has helpful type manipulation helpers
       quantity: Ty.nn("int"),
     },
   });
@@ -79,13 +78,14 @@ test("See the type checker", () => {
     attributes: { id: Ty.nn("int"), state: "string" },
   });
 
-  // Nasty will keep track of the attributes a relation has and correctly model
-  // your entire data pipeline. Nasty models the expression language, joins,
-  // windows, and aggreagtes. All of this information is available to tooling
-  // and meta programming. Making changes on your data sources will show the
-  // type errors all the way up to your visualization ands reverse etl
-  // processes! Never again wonder what will break when you change a
-  // foundational model!
+  // Nasty will keep track of the attributes a relation has and calculates the
+  // resulting types of each operation. Nasty models the full expression
+  // language, joins, windows, and aggregates.
+  //
+  // All of this information is available to tooling, unit testing, and meta
+  // programming. Making changes on your data sources will show the type errors
+  // all the way up to your visualization layer ands reverse ETL processes! Never
+  // again wonder what will break when you change a foundational model.
   const CustomerOrderStats = Customers.leftJoin(Orders, (customer, orders) => ({
     on: Eq(customer.attr("id"), orders.attr("customer_id")),
     select: {
