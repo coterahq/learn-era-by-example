@@ -158,7 +158,7 @@ describe("filtering", () => {
   //
   // 1. Learn how to use `.filter` to limit rows
   test.skip("only rows where a >= 2", async () => {
-    const query = Values(data).filter((t) => t.attr("a").lte(10));
+    const query = Values(data).where((t) => t.attr("a").lte(10));
 
     expect(await query.execute(db())).toEqual([
       { a: 2, b: "bar" },
@@ -175,12 +175,12 @@ describe("sort", () => {
   // 2. Use `Asc` and `Desc` to sort in a particular direction
 
   test.skip("sort with a limit", async () => {
-    const query = Values(data).sort((t) => Asc(t.attr("a")), { limit: 10 });
+    const query = Values(data).orderBy((t) => Asc(t.attr("a")), { limit: 10 });
     expect(await query.execute(db())).toHaveLength(2);
   });
 
   test.skip("sort with a desc", async () => {
-    const query = Values(data).sort((_t) => CHANGE_ME());
+    const query = Values(data).orderBy((_t) => CHANGE_ME());
 
     expect(await query.execute(db())).toEqual([
       { a: 3, b: "Baz" },
@@ -189,8 +189,8 @@ describe("sort", () => {
     ]);
   });
 
-  test.skip('sort on "a" < 2 DESC AND "b" ASC', async () => {
-    const query = Values(data).sort((t) => [
+  test.skip('order on "a" < 2 DESC AND "b" ASC', async () => {
+    const query = Values(data).orderBy((t) => [
       Desc(t.attr("a").lt(2)),
       Desc(t.attr("b")),
     ]);
