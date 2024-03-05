@@ -36,7 +36,7 @@ test("Using nasty to generate SQL", () => {
       foo: "string",
       bar: "int",
     },
-  }).filter((t) => t.attr("bar").gt(2));
+  }).where((t) => t.attr("bar").gt(2));
 
   expect(Tab.postgresSql.sql).toEqual(
     'select "bar" as "bar", "foo" as "foo" from "some_schema"."some_table_name" where ("bar" > 2)',
@@ -233,23 +233,23 @@ describe(Relation.name, () => {
     ).toEqual([{ foo: 10 }]);
   });
 
-  test("the `.sort` method", async () => {
+  test("the `.orderBy` method", async () => {
     // You can sort relations using `Asc` and `Desc`
 
     const SomeData = Values([{ foo: 1 }, { foo: 10 }, { foo: 100 }]);
 
     expect(
-      await SomeData.sort((t) => Asc(t.attr("foo"))).execute(db()),
+      await SomeData.orderBy((t) => Asc(t.attr("foo"))).execute(db()),
     ).toEqual([{ foo: 1 }, { foo: 10 }, { foo: 100 }]);
 
     expect(
-      await SomeData.sort((t) => Desc(t.attr("foo"))).execute(db()),
+      await SomeData.orderBy((t) => Desc(t.attr("foo"))).execute(db()),
     ).toEqual([{ foo: 100 }, { foo: 10 }, { foo: 1 }]);
 
-    // Alternatively the `.select` method provides a `sort` parameter
+    // Alternatively the `.select` method provides a `orderBy` parameter
     expect(
       await SomeData.select((t) => t.star(), {
-        sort: (t) => Desc(t.attr("foo")),
+        orderBy: (t) => Desc(t.attr("foo")),
       }).execute(db()),
     ).toEqual([{ foo: 100 }, { foo: 10 }, { foo: 1 }]);
 
@@ -274,7 +274,7 @@ describe(Relation.name, () => {
       await SomeData.select((t) => t.star(), {
         limit: 1,
         offset: 1,
-        sort: (t) => Asc(t.attr("foo")),
+        orderBy: (t) => Asc(t.attr("foo")),
       }).execute(db()),
     ).toEqual([{ foo: 10 }]);
 
