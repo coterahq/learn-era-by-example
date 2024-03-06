@@ -1,4 +1,3 @@
-// @ts-ignore
 import { DuckDbNativeDriver } from "@cotera/nasty-drivers";
 
 export const CHANGE_ME = (..._vars: any[]) => {
