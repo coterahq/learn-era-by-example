@@ -53,10 +53,38 @@ Running `.learn.ts` files
 ```bash
 $ TEST_LEARN=true npm test
 ```
+## The First Example
+
+Open `src/01_the-basics.test.ts` in your test editor and locate the test titled "learn to complete an example".
+
+This test is **broken** by default, and contains a comment showing you how to fix it.
+
+Edit the test to look something like so:
+```typescript
+test("learn to complete an example", async () => {
+  const query = Values(data).select((t) => {
+    return {
+      a: t.attr('a'),
+      b: t.attr('b')
+    }
+  });
+
+  expect(await query.execute(db())).toEqual([
+    { a: 1, b: "Foo" },
+    { a: 2, b: "Bar" },
+    { a: 3, b: "Baz" },
+  ]);
+});
+```
+
+When you re-run the test command, it should now pass. :fireworks:
+```bash
+$ npm run test -- src/01_the-basics.test.ts
+```
 
 ## ⚽ Goals 
 
-By the end, you should have a reasonable understanding of how to use Nasty to perform analytics tasks on the example data.
+By the end, you should have a reasonable understanding of how to use [Nasty](https://getnasty.com) to perform analytics tasks on some example data.
 
 ### :eyes: But How?
 
@@ -64,7 +92,7 @@ Through test driven development! 🚦
 
 In the practice of test-driven development, the guiding principle is often summarized as "red, green, refactor." This means first creating a test that fails upon execution (indicated by red), then adjusting the code until the test succeeds (signified by green), and finally examining and improving the code's structure or clarity (refactoring).
 
-For thee examples, you will need to run the test and see it fail (red), make the test pass (green), then take a moment and reflect upon the test to see what it is teaching you and improve the code to better communicate its intent (refactor).
+For these examples, you will need to run the test and see it fail (red), make the test pass (green), then take a moment and reflect upon the test to see what it is teaching you and improve the code to better communicate its intent (refactor).
 
 Normally the flow looks like this:
 
@@ -75,7 +103,7 @@ graph LR
     B -->|No| C{Needs Refactor?}
     D --> A
     C -->|Yes| D
-    C -->|No| E[Profit 💰]
+    C -->|No| E[Next Example :arrow_forward:]
 ```
 
 
@@ -83,11 +111,11 @@ graph LR
 
 ### The `.learn.ts` files
 
-each `.learn.ts` file contains examples of how to use the concept in nasty. Start in these files to see examples on how to use a concept
+Each `.learn.ts` file contains examples of how to use the concept in nasty. Start in these files to see examples on how to use a concept.
 
 ### The `.test.ts` files
 
-These let you apply the skills you've learned in examples by fixing unit tests
+These let you apply the skills you've learned in examples by fixing unit tests.
 
 ```typescript
 test.skip("I'm a description of the example", () => {
