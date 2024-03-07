@@ -2,31 +2,11 @@ import { Asc, Desc, Eq, From, Relation, Ty, Values } from "@cotera/nasty";
 import { test, expect, describe } from "vitest";
 import { db } from "./helpers";
 
-// # Welcome to Nasty, the "post-modern" data stack!
-//
-// Q. Why does Nasty exist?
-//
-// A. Nasty was built to maintain testable/composable data pipelines. Our team
-// was ripping our hair out trying to maintain dbt/SQL scripts across different
-// data warehouses (Redshift, BigQuery, Postgres, Snowflake) on top of ever
-// shifting data foundations maintained by our customer's internal data teams.
-// Nasty is the result of our learnings from field experience.
-//
-// Q. Is Nasty an ORM? A SQL builder?
-//
-// A. Neither! Nasty is kinda it's own thing. Nasty is more like a minimal
-// relational algebra programming language shipped as a Typescript library. It
-// borrows a bunch of learnings from other programming languages and applies
-// them to OLAP programming / data engineering.
-//
-// Q. Why is it called Nasty?
-//
-// A. Nasty stands for (Nasty Abstract Syntax Tree Thing-y). Nasty is named
-// after the fact it defines an "abstract syntax tree (AST)" as its main
-// interface, as opposed to SQL which exposes a text format
+// Welcome to NASTY, a cross warehouse, type checked, unit testable analytics
+// library for building data applications.
 
 test("Using nasty to generate SQL", () => {
-  // Nasty can be used to generate data{base, warehouse} specific SQL. Nasty
+  // NASTY can be used to generate data{base, warehouse} specific SQL. Nasty
   // ships with a SQL generator that supports many different dialects.
 
   const Tab = From({
@@ -57,7 +37,7 @@ test("Using nasty to generate SQL", () => {
 
 test("Introduction to the type checker", () => {
   // A really powerful part of nasty is that it ships with a _full_ relational
-  // algebra type checker. Nasty's goal is to be able to tell if a query is
+  // algebra type checker. NASTY's goal is to be able to tell if a query is
   // valid _before_ running it. This allows for fast feedback on how a
   // potential change will affect your entire pipeline.
 
@@ -65,7 +45,7 @@ test("Introduction to the type checker", () => {
     schema: "public",
     name: "orders",
     attributes: {
-      // Nasty keeps track of nullability
+      // NASTY keeps track of nullability
       customer_id: { ty: "int", nullable: false },
       // The `Ty` library has helpful type manipulation helpers
       quantity: Ty.nn("int"),
@@ -78,8 +58,8 @@ test("Introduction to the type checker", () => {
     attributes: { id: Ty.nn("int"), state: "string" },
   });
 
-  // Nasty will keep track of the attributes a relation has and calculates the
-  // resulting types of each operation. Nasty models the full expression
+  // NASTY will keep track of the attributes a relation has and calculates the
+  // resulting types of each operation. NASTY models the full expression
   // language, joins, windows, and aggregates.
   //
   // All of this information is available to tooling, unit testing, and meta
@@ -94,7 +74,7 @@ test("Introduction to the type checker", () => {
     },
   }));
 
-  // Nasty analyzed the join and figures out the types of the output relation
+  // NASTY analyzed the join and figures out the types of the output relation
   // (including nullability!)
   expect(CustomerOrderStats.attributes).toEqual({
     id: Ty.nn("int"),
@@ -102,7 +82,7 @@ test("Introduction to the type checker", () => {
     quantity: Ty.nn("int"),
   });
 
-  // The Nasty type checker will analyze your relations and give you instant
+  // The NASTY type checker will analyze your relations and give you instant
   // feedback if something you're doing is invalid.
   //
   expect(() =>
@@ -126,14 +106,14 @@ TraceBack:
 });
 
 test("Introducing the `Values` clause", async () => {
-  // Nasty has good interop with Javascript values. One thing it implements for
+  // NASTY has good interop with Javascript values. One thing it implements for
   // every warehouse is `Values`, which are a way of treating Javascript objects like rows.
   // This can be a handy Swiss Army Knife to move small tables around and write unit tests.
 
   // Here we're setting `SomeData` to be a `Relation` that's a values clause
   const SomeData = Values([{ n: 1 }, { n: 2 }]);
 
-  // Nasty will infer the type of `SomeData` to be a table with a single column
+  // NASTY will infer the type of `SomeData` to be a table with a single column
   // named `n` of type `"int"`
   expect(SomeData.attributes).toEqual({ n: Ty.nn("int") });
 
@@ -155,7 +135,7 @@ test("Introducing the `Values` clause", async () => {
 });
 
 describe(Relation.name, () => {
-  // This section explores a core Nasty concept called `Relation`. Relations
+  // This section explores a core NASTY concept called `Relation`. Relations
   // are similar to "tables" in SQL, they have one or more columns that have
   // names and types. They represent 0 or more rows that have those types
   //
@@ -190,18 +170,18 @@ describe(Relation.name, () => {
           // the previous relations's "a" attribute +1
           better_a: t.attr("a").add(1),
         }))
-        // We can "pick" just the attributes we want, Nasty has access to the
+        // We can "pick" just the attributes we want, NASTY has access to the
         // type check information after every select, so it can use that to both
         // typecheck and dyanmicly adjust the columns selected
         .select((t) => ({ ...t.pick("a", "b", "d") }))
         // We can also do the "reverse" of `.pick` with `.except`, which
         // returns all the attributes _except_ the selected attributes
         .select((t) => ({ ...t.except("b") }))
-        // Nasty makes bulk renaming a breeze
+        // NASTY makes bulk renaming a breeze
         .select((t) => ({
           ...t.renameWith((oldName) => `some_prefix_${oldName}`),
         }))
-        // Nasty supports `distinct` in `.select`
+        // NASTY supports `distinct` in `.select`
         .select((t) => ({ ...t.star() }), { distinct: true });
 
     expect(Pipeline.attributes).toEqual({
@@ -254,10 +234,9 @@ describe(Relation.name, () => {
     ).toEqual([{ foo: 100 }, { foo: 10 }, { foo: 1 }]);
 
     // NOTE: sorts do not automatically propogate through multiple CTEs.
-    // Warehouses are allowed to (and do in practice) ignore sorts that
-    // aren't top level. Nasty SQL gen may eventually add more `sort`
-    // garuntees, but currently makes no effort to preserve sorts that aren't
-    // top level
+    // Warehouses are allowed to (and do in practice) ignore sorts that aren't
+    // top level. NASTY SQL gen may eventually add more `sort` guarantees, but
+    // currently makes no effort to preserve sorts that aren't top level
   });
 
   test("the `.limit` method", async () => {
