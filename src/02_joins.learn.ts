@@ -37,3 +37,44 @@ test("Joining two tables", async () => {
     { SUM: 6, bar: 3, foo: 3 },
   ]);
 });
+
+test("left and right joins", async () => {
+  const L = Values([1, 2, 3].map((l) => ({ l })));
+  const R = Values([1, 2, 3].map((r) => ({ r })));
+
+  // Left join where R.r is strictly greater than L.l
+  const LeftJoin = L.leftJoin(R, (l, r) => ({
+    on: r.attr("r").gt(l.attr("l")),
+    select: { ...l.star(), ...r.star() },
+  }));
+
+  expect(await LeftJoin.execute(db())).toEqual([
+    // l == 1 has two rows on the right that match with it, so there are two
+    // resulting rows
+    { l: 1, r: 2 },
+    { l: 1, r: 3 },
+    // l == 2 has one row where r > 2
+    { l: 2, r: 3 },
+    // There are no rows where r > 3, but l == 3 still appears because this is
+    // a left join
+    { l: 3, r: null },
+  ]);
+
+  // Right join where R.r is strictly greater than L.l
+  const RightJoin = L.rightJoin(R, (l, r) => ({
+    on: r.attr("r").gt(l.attr("l")),
+    select: { ...l.star(), ...r.star() },
+  })).orderBy((t) => Asc(t.attr("l")));
+
+  expect(await RightJoin.execute(db())).toEqual([
+    // l == 1 has two rows on the right that match with it, so there are two
+    // resulting rows
+    { l: 1, r: 2 },
+    { l: 1, r: 3 },
+    // l == 2 has one row where r > 2
+    { l: 2, r: 3 },
+    // There are no rows where r == 1 is > than any L but it still appears in
+    // the output set
+    { l: null, r: 1 },
+  ]);
+});
