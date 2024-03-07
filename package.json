@@ -17,8 +17,8 @@
     "url": "https://github.com/coterahq/learn-nasty-by-example/issues"
   },
   "dependencies": {
-    "@cotera/nasty": "^0.0.21",
-    "@cotera/nasty-drivers": "^0.0.21"
+    "@cotera/nasty": "^0.0.22",
+    "@cotera/nasty-drivers": "^0.0.22"
   },
   "homepage": "https://github.com/coterahq/learn-nasty-by-example#readme",
   "devDependencies": {
