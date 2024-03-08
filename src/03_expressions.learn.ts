@@ -1,6 +1,19 @@
 import { test, expect, describe } from "vitest";
 import { db } from "./helpers";
-import { Constant, Expression, LogBase10, LogBase2, Ln, Ty } from "@cotera/nasty";
+import {
+  Constant,
+  Expression,
+  LogBase10,
+  LogBase2,
+  Ln,
+  Ty,
+  Eq,
+  Neq,
+  Gt,
+  Gte,
+  Lt,
+  Lte,
+} from "@cotera/nasty";
 
 // Explore NASTY's expression langauge
 
@@ -36,10 +49,8 @@ test("Constant", () => {
 });
 
 test("math", () => {
-  // NASTY implements math stuff!
-
   const cases: [expr: Expression, expected: Ty.Literal | null][] = [
-    // + - * /
+    // +, -, *, /,
     [Constant(1).add(1), 2],
     [Constant(1).sub(2), -1],
     [Constant(10).mul(10), 100],
@@ -60,7 +71,41 @@ test("math", () => {
     // Logs
     [LogBase2(16), 4],
     [LogBase10(100), 2],
-    [Ln(Math.E), 1]
+    [Ln(Math.E), 1],
+
+    // Math on nulls are null
+    [Constant(null, { ty: "int" }).add(4), null],
+  ];
+
+  for (const [expr, expected] of cases) {
+    expect(expr.evaluate()).toEqual(expected);
+  }
+});
+
+test("comparisons", () => {
+  const cases: [expr: Expression, expected: Ty.Literal | null][] = [
+    // >
+    [Constant(4).gt(10), false],
+    [Gt(4, 10), false],
+    [Constant(4).gt(4), false],
+    [Constant(4).gt(3.9), true],
+    // >=
+    [Constant(4).gte(4), true],
+    [Gte(3, 3), true],
+    // <, <=
+    [Constant(4).lt(10), true],
+    [Lt(4, 10), true],
+    [Constant(4).lte(4), true],
+    [Lte(3, 2), false],
+    // ==
+    [Constant(4).eq(4), true],
+    [Eq(4, 4), true],
+    // !=
+    [Constant(4).neq(4), false],
+    [Neq(4, 4), false],
+    // Between
+    [Constant(4).between(3, 10), true],
+    [Constant(50).between(3, 10), false],
   ];
 
   for (const [expr, expected] of cases) {
