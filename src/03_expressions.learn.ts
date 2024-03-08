@@ -89,6 +89,8 @@ test("comparisons", () => {
     [Gt(4, 10), false],
     [Constant(4).gt(4), false],
     [Constant(4).gt(3.9), true],
+    [Gt("b", "a"), true],
+    [Gt(new Date("2024-1-1Z"), new Date("2022-1-1Z")), true],
     // >=
     [Constant(4).gte(4), true],
     [Gte(3, 3), true],
@@ -106,6 +108,14 @@ test("comparisons", () => {
     // Between
     [Constant(4).between(3, 10), true],
     [Constant(50).between(3, 10), false],
+    [
+      Constant(new Date("2023-1-1Z")).between(
+        new Date("2022-1-1Z"),
+        new Date("2024-1-1Z"),
+      ),
+      true,
+    ],
+    [Constant("b").between("a", "c"), true],
   ];
 
   for (const [expr, expected] of cases) {
