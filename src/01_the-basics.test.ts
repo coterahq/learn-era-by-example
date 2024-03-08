@@ -95,7 +95,6 @@ describe("selecting", () => {
   });
 });
 
-
 describe("filtering", () => {
   test.skip("only rows where a >= 2", async () => {
     const query = Values(data).where((t) => t.attr("a").lte(10));
@@ -134,5 +133,12 @@ describe("sort", () => {
       { a: 3, b: "Baz" },
       { a: 2, b: "Bar" },
     ]);
+  });
+});
+
+describe("limit", () => {
+  test.skip("add a limit", async () => {
+    const Data = Values([1, 2, 3, 4, 5].map((n) => ({ n }))).limit(CHANGE_ME());
+    expect(await Data.execute(db())).toHaveLength(4);
   });
 });
