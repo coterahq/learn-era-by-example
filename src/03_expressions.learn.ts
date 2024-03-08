@@ -1,5 +1,4 @@
-import { test, expect, describe } from "vitest";
-import { db } from "./helpers";
+import { test, expect } from "vitest";
 import {
   Constant,
   Expression,
@@ -13,6 +12,10 @@ import {
   Gte,
   Lt,
   Lte,
+  And,
+  Or,
+  Not,
+  f,
 } from "@cotera/nasty";
 
 // Explore NASTY's expression langauge
@@ -48,6 +51,25 @@ test("Constant", () => {
   expect(() => Constant(3).impure().evaluate()).toThrowError();
 });
 
+test("logic", () => {
+  const cases: [expr: Expression, expected: Ty.Literal | null][] = [
+    [And(true, true), true],
+    [And(true, false), false],
+    [And(true, true, false), false],
+    [Or(true, false), true],
+    [Or(Neq(1, 1), Eq(1, 1)), true],
+    [Not(true), false],
+    // method notation
+    [Constant(true).and(false), false],
+    [Constant(true).or(false), true],
+    [Constant(true).not(), false],
+  ];
+
+  for (const [expr, expected] of cases) {
+    expect(expr.evaluate()).toEqual(expected);
+  }
+});
+
 test("math", () => {
   const cases: [expr: Expression, expected: Ty.Literal | null][] = [
     // +, -, *, /,
@@ -72,6 +94,9 @@ test("math", () => {
     [LogBase2(16), 4],
     [LogBase10(100), 2],
     [Ln(Math.E), 1],
+
+    // Exponents
+    [Constant(4).toThePowerOf(2), 16],
 
     // Math on nulls are null
     [Constant(null, { ty: "int" }).add(4), null],
@@ -102,6 +127,8 @@ test("comparisons", () => {
     // ==
     [Constant(4).eq(4), true],
     [Eq(4, 4), true],
+    [Constant(4).oneOf([4, 5, 6]), true],
+    [Constant(4).oneOf([7, 8, 9]), false],
     // !=
     [Constant(4).neq(4), false],
     [Neq(4, 4), false],
@@ -116,6 +143,32 @@ test("comparisons", () => {
       true,
     ],
     [Constant("b").between("a", "c"), true],
+  ];
+
+  for (const [expr, expected] of cases) {
+    expect(expr.evaluate()).toEqual(expected);
+  }
+});
+
+test("strings", () => {
+  const cases: [expr: Expression, expected: Ty.Literal | null][] = [
+    [Constant("foo").upper(), "FOO"],
+    [Constant("FOO").lower(), "foo"],
+    // concat
+    [Constant("foo").concat("bar"), "foobar"],
+    // length
+    [Constant("foo").length(), 3],
+    [Constant("foobar").length(), 6],
+    // `f` strings are similar to python f strings but for NASTY
+    [f`some string ${4}`, "some string 4"],
+    [f`Result => ${Eq(4, 4)}`, "Result => true"],
+    [f`outer -> ${f`inner -> ${10}`}`, "outer -> inner -> 10"],
+
+    // // Like
+    // [Constant('foo').like('foo'), true],
+    // // Use '%' as a wildcard match
+    // [Constant('foo').like('f'), false],
+    // [Constant('foo').like('f%'), true],
   ];
 
   for (const [expr, expected] of cases) {
