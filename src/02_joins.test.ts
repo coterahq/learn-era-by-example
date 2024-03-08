@@ -3,13 +3,6 @@ import { db, CHANGE_ME } from "./helpers";
 import { describe, test, expect } from "vitest";
 
 describe("join", () => {
-  // Section goals
-  //
-  // 0. Inner Join
-  // 2. Left Join
-  // 3. Right Join
-  // 4. Deal with attributes that are in both sides of the join
-
   const Users = Values([
     { id: 1, name: "Kendra" },
     { id: 2, name: "TJ" },
