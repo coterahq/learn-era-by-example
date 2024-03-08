@@ -215,7 +215,6 @@ describe(Relation.name, () => {
 
   test("the `.orderBy` method", async () => {
     // You can sort relations using `Asc` and `Desc`
-
     const SomeData = Values([{ foo: 1 }, { foo: 10 }, { foo: 100 }]);
 
     expect(

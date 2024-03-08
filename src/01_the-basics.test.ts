@@ -9,15 +9,6 @@ const data = [
 ];
 
 describe("selecting", () => {
-  // Section Goals
-  //
-  // 0. Learn how to change `test.skip` to `attempt` to run a koan
-  // 1. Learn how to use `t.star()` to get all the attributes of relation
-  // 2. Learn how to use `t.attr('foo')` to get attribute `'foo'`
-  // 3. Learn how to _create_ new attributes
-  // 4. Learn how to rename an existing attribute
-  // 5. Learn how to rename _all_ attributes
-
   test("learn to complete an example", async () => {
     const query = Values(data).select((t) => {
       return CHANGE_ME(t);
@@ -104,59 +95,8 @@ describe("selecting", () => {
   });
 });
 
-describe("scalar expressions", () => {
-  // Section goals
-  //
-  // 0. Learn how to do math on constants
-  // 1. Learn hot to use `Constant`
-  // 2. Learn how to use comparisions `(lte, gte, gt, lt, eq, neq)`
-  // 3. Learn to use Not
-  // 4. Learn how to use string functions (lower, upper, like, concat)
-  // 5. Learn how to use `and` `or`
-
-  test.skip("string functions", async () => {
-    const query = Values(data).select((t) => {
-      const b = t.attr("b");
-
-      return {
-        b,
-        starts_with_b: CHANGE_ME(),
-        upper_case_b: CHANGE_ME(),
-        lower_case_b: CHANGE_ME(),
-        b_with_suffix: CHANGE_ME(),
-      };
-    });
-
-    expect(await query.execute(db())).toEqual([
-      {
-        b: "Foo",
-        b_with_suffix: "Foo_suffix",
-        lower_case_b: "foo",
-        starts_with_b: false,
-        upper_case_b: "FOO",
-      },
-      {
-        b: "Bar",
-        b_with_suffix: "Bar_suffix",
-        lower_case_b: "bar",
-        starts_with_b: true,
-        upper_case_b: "BAR",
-      },
-      {
-        b: "Baz",
-        b_with_suffix: "Baz_suffix",
-        lower_case_b: "baz",
-        starts_with_b: true,
-        upper_case_b: "BAZ",
-      },
-    ]);
-  });
-});
 
 describe("filtering", () => {
-  // Section goals
-  //
-  // 1. Learn how to use `.filter` to limit rows
   test.skip("only rows where a >= 2", async () => {
     const query = Values(data).where((t) => t.attr("a").lte(10));
 
@@ -168,12 +108,6 @@ describe("filtering", () => {
 });
 
 describe("sort", () => {
-  // Section goals
-  //
-  // 0. Sort with a limit
-  // 1. Sort on an attribute
-  // 2. Use `Asc` and `Desc` to sort in a particular direction
-
   test.skip("sort with a limit", async () => {
     const query = Values(data).orderBy((t) => Asc(t.attr("a")), { limit: 10 });
     expect(await query.execute(db())).toHaveLength(2);
