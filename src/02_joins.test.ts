@@ -16,7 +16,7 @@ describe("join", () => {
     { user_id: 3, fav_color: "red" },
   ]);
 
-  test.skip("inner join two tables", async () => {
+  test.skip("left join two tables", async () => {
     const query = Users.leftJoin(Preferences, (user, preference) => ({
       on: CHANGE_ME(),
       select: {
