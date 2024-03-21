@@ -98,9 +98,6 @@ test("Introduction to the type checker", () => {
   "state" string,
   "quantity" int NOT NULL
 )
-
-TraceBack:
- -> attr - "from"
 `,
   );
 });
