@@ -1,12 +1,12 @@
-import { Asc, Desc, Eq, From, Relation, Ty, Values } from "@cotera/nasty";
+import { Asc, Desc, Eq, From, Relation, Ty, Values } from "@cotera/era";
 import { test, expect, describe } from "vitest";
 import { db } from "./helpers";
 
-// Welcome to NASTY, a cross warehouse, type checked, unit testable analytics
+// Welcome to ERA, a cross warehouse, type checked, unit testable analytics
 // library for building data applications.
 
-test("Using nasty to generate SQL", () => {
-  // NASTY can be used to generate data{base, warehouse} specific SQL. Nasty
+test("Using era to generate SQL", () => {
+  // ERA can be used to generate data{base, warehouse} specific SQL. Era
   // ships with a SQL generator that supports many different dialects.
 
   const Tab = From({
@@ -36,8 +36,8 @@ test("Using nasty to generate SQL", () => {
 });
 
 test("Introduction to the type checker", () => {
-  // A really powerful part of nasty is that it ships with a _full_ relational
-  // algebra type checker. NASTY's goal is to be able to tell if a query is
+  // A really powerful part of era is that it ships with a _full_ relational
+  // algebra type checker. ERA's goal is to be able to tell if a query is
   // valid _before_ running it. This allows for fast feedback on how a
   // potential change will affect your entire pipeline.
 
@@ -45,7 +45,7 @@ test("Introduction to the type checker", () => {
     schema: "public",
     name: "orders",
     attributes: {
-      // NASTY keeps track of nullability
+      // ERA keeps track of nullability
       customer_id: { ty: "int", nullable: false },
       // The `Ty` library has helpful type manipulation helpers
       quantity: Ty.nn("int"),
@@ -58,8 +58,8 @@ test("Introduction to the type checker", () => {
     attributes: { id: Ty.nn("int"), state: "string" },
   });
 
-  // NASTY will keep track of the attributes a relation has and calculates the
-  // resulting types of each operation. NASTY models the full expression
+  // ERA will keep track of the attributes a relation has and calculates the
+  // resulting types of each operation. ERA models the full expression
   // language, joins, windows, and aggregates.
   //
   // All of this information is available to tooling, unit testing, and meta
@@ -74,7 +74,7 @@ test("Introduction to the type checker", () => {
     },
   }));
 
-  // NASTY analyzed the join and figures out the types of the output relation
+  // ERA analyzed the join and figures out the types of the output relation
   // (including nullability!)
   expect(CustomerOrderStats.attributes).toEqual({
     id: Ty.nn("int"),
@@ -82,7 +82,7 @@ test("Introduction to the type checker", () => {
     quantity: Ty.nn("int"),
   });
 
-  // The NASTY type checker will analyze your relations and give you instant
+  // The ERA type checker will analyze your relations and give you instant
   // feedback if something you're doing is invalid.
   //
   expect(() =>
@@ -103,14 +103,14 @@ test("Introduction to the type checker", () => {
 });
 
 test("Introducing the `Values` clause", async () => {
-  // NASTY has good interop with Javascript values. One thing it implements for
+  // ERA has good interop with Javascript values. One thing it implements for
   // every warehouse is `Values`, which are a way of treating Javascript objects like rows.
   // This can be a handy Swiss Army Knife to move small tables around and write unit tests.
 
   // Here we're setting `SomeData` to be a `Relation` that's a values clause
   const SomeData = Values([{ n: 1 }, { n: 2 }]);
 
-  // NASTY will infer the type of `SomeData` to be a table with a single column
+  // ERA will infer the type of `SomeData` to be a table with a single column
   // named `n` of type `"int"`
   expect(SomeData.attributes).toEqual({ n: Ty.nn("int") });
 
@@ -132,7 +132,7 @@ test("Introducing the `Values` clause", async () => {
 });
 
 describe(Relation.name, () => {
-  // This section explores a core NASTY concept called `Relation`. Relations
+  // This section explores a core ERA concept called `Relation`. Relations
   // are similar to "tables" in SQL, they have one or more columns that have
   // names and types. They represent 0 or more rows that have those types
   //
@@ -167,18 +167,18 @@ describe(Relation.name, () => {
           // the previous relations's "a" attribute +1
           better_a: t.attr("a").add(1),
         }))
-        // We can "pick" just the attributes we want, NASTY has access to the
+        // We can "pick" just the attributes we want, ERA has access to the
         // type check information after every select, so it can use that to both
         // typecheck and dyanmicly adjust the columns selected
         .select((t) => ({ ...t.pick("a", "b", "d") }))
         // We can also do the "reverse" of `.pick` with `.except`, which
         // returns all the attributes _except_ the selected attributes
         .select((t) => ({ ...t.except("b") }))
-        // NASTY makes bulk renaming a breeze
+        // ERA makes bulk renaming a breeze
         .select((t) => ({
           ...t.renameWith((oldName) => `some_prefix_${oldName}`),
         }))
-        // NASTY supports `distinct` in `.select`
+        // ERA supports `distinct` in `.select`
         .select((t) => ({ ...t.star() }), { distinct: true });
 
     expect(Pipeline.attributes).toEqual({
@@ -231,7 +231,7 @@ describe(Relation.name, () => {
 
     // NOTE: sorts do not automatically propogate through multiple CTEs.
     // Warehouses are allowed to (and do in practice) ignore sorts that aren't
-    // top level. NASTY SQL gen may eventually add more `sort` guarantees, but
+    // top level. ERA SQL gen may eventually add more `sort` guarantees, but
     // currently makes no effort to preserve sorts that aren't top level
   });
 

@@ -1,11 +1,11 @@
 {
-  "name": "@cotera/learn-nasty-by-example",
+  "name": "@cotera/learn-era-by-example",
   "version": "0.0.1",
   "type": "module",
   "description": "Get started with the next generation of data science tools ",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/coterahq/learn-nasty-by-example.git"
+    "url": "git+https://github.com/coterahq/learn-era-by-example.git"
   },
   "scripts": {
     "test": "npx vitest",
@@ -14,13 +14,13 @@
   "author": "cotera.co",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/coterahq/learn-nasty-by-example/issues"
+    "url": "https://github.com/coterahq/learn-era-by-example/issues"
   },
   "dependencies": {
-    "@cotera/nasty": "^0.0.30",
-    "@cotera/nasty-drivers": "^0.0.30"
+    "@cotera/era": "^0.0.31",
+    "@cotera/era-drivers": "^0.0.31"
   },
-  "homepage": "https://github.com/coterahq/learn-nasty-by-example#readme",
+  "homepage": "https://github.com/coterahq/learn-era-by-example#readme",
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
     "typescript": "^5.3.3",

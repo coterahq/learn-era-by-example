@@ -1,4 +1,4 @@
-import { Asc, Desc, Values } from "@cotera/nasty";
+import { Asc, Desc, Values } from "@cotera/era";
 import { db, CHANGE_ME } from "./helpers";
 import { describe, test, expect } from "vitest";
 
