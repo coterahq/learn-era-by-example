@@ -16,13 +16,13 @@ import {
   Or,
   Not,
   f,
-} from "@cotera/nasty";
+} from "@cotera/era";
 
-// Explore NASTY's expression langauge
+// Explore ERA's expression langauge
 
 test("Constant", () => {
   // The `Constant` wrapper takes a Javascript primative and wraps it into a
-  // NASTY expression. The `.evaluate` method runs an expression in the JS
+  // ERA expression. The `.evaluate` method runs an expression in the JS
   // interpreter
   expect(Constant(4).evaluate()).toEqual(4);
   expect(Constant("foo").evaluate()).toEqual("foo");
@@ -52,7 +52,7 @@ test("Constant", () => {
 });
 
 test("logic", () => {
-  const cases: [expr: Expression, expected: Ty.Literal | null][] = [
+  const cases: [expr: Expression, expected: Ty.Scalar][] = [
     [And(true, true), true],
     [And(true, false), false],
     [And(true, true, false), false],
@@ -71,7 +71,7 @@ test("logic", () => {
 });
 
 test("math", () => {
-  const cases: [expr: Expression, expected: Ty.Literal | null][] = [
+  const cases: [expr: Expression, expected: Ty.Scalar][] = [
     // +, -, *, /,
     [Constant(1).add(1), 2],
     [Constant(1).sub(2), -1],
@@ -108,7 +108,7 @@ test("math", () => {
 });
 
 test("comparisons", () => {
-  const cases: [expr: Expression, expected: Ty.Literal | null][] = [
+  const cases: [expr: Expression, expected: Ty.Scalar][] = [
     // >
     [Constant(4).gt(10), false],
     [Gt(4, 10), false],
@@ -151,7 +151,7 @@ test("comparisons", () => {
 });
 
 test("strings", () => {
-  const cases: [expr: Expression, expected: Ty.Literal | null][] = [
+  const cases: [expr: Expression, expected: Ty.Scalar][] = [
     [Constant("foo").upper(), "FOO"],
     [Constant("FOO").lower(), "foo"],
     // concat
@@ -159,7 +159,7 @@ test("strings", () => {
     // length
     [Constant("foo").length(), 3],
     [Constant("foobar").length(), 6],
-    // `f` strings are similar to python f strings but for NASTY
+    // `f` strings are similar to python f strings but for ERA
     [f`some string ${4}`, "some string 4"],
     [f`Result => ${Eq(4, 4)}`, "Result => true"],
     [f`outer -> ${f`inner -> ${10}`}`, "outer -> inner -> 10"],

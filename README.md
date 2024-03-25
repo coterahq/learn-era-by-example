@@ -1,11 +1,11 @@
-<img align="center" src="https://github.com/coterahq/nasty-assets/blob/main/logo.svg?raw=true" alt="Get Nasty Docs" style="width:100%;height:100px"/></a><br/><br/>
-<p align="center">NASTY is a practical framework for building composable data applications that are easy to maintain. Think type safety, beautiful abstractions, unit tests... everything an engineer expects in 2024.</p>
+<img align="center" src="https://github.com/coterahq/nasty-assets/blob/main/logo.svg?raw=true" alt="Get ERA Docs" style="width:100%;height:100px"/></a><br/><br/>
+<p align="center">ERA is a practical framework for building composable data applications that are easy to maintain. Think type safety, beautiful abstractions, unit tests... everything an engineer expects in 2024.</p>
 
 <sub>By [Cotera](https://cotera.co), inspired by [Ruby Koans](https://www.rubykoans.com/).</sub>
 
-## 👋 Learn Nasty By Example
+## 👋 Learn ERA By Example
 
-A simple repository to get you started with understanding the Nasty Analytics Toolkit, quickly.
+A simple repository to get you started with understanding the ERA Analytics Toolkit, quickly.
 
 ## 💡 Who is this for? 
 
@@ -22,16 +22,16 @@ Make sure you have NodeJS installed ([Download](https://nodejs.org/en/downloaddo
 :warning: **Installation can take a few minutes, due to downloading the duckdb binary**
 
 ```bash
-$ git clone https://github.com/coterahq/learn-nasty-by-example.git
+$ git clone https://github.com/coterahq/learn-era-by-example.git
 
-$ cd learn-nasty-by-example
+$ cd learn-era-by-example
 
 $ npm i
 
 $ npm run test
 ```
 If this is all setup correctly, you should see an output similar to this:
-<img align="center" alt="Nasty test example" src="https://github.com/coterahq/nasty-assets/blob/main/learn-nasty-test_01.png?raw=true"/>
+<img align="center" alt="Era test example" src="https://github.com/coterahq/nasty-assets/blob/main/learn-nasty-test_01.png?raw=true"/>
 
 ### :heavy_check_mark: Running tests
 
@@ -84,7 +84,7 @@ $ npm run test -- src/01_the-basics.test.ts
 
 ## ⚽ Goals 
 
-By the end, you should have a reasonable understanding of how to use [Nasty](https://getnasty.com) to perform analytics tasks on some example data.
+By the end, you should have a reasonable understanding of how to use [ERA](https://getera.com) to perform analytics tasks on some example data.
 
 ### :eyes: But How?
 
@@ -111,7 +111,7 @@ graph LR
 
 ### The `.learn.ts` files
 
-Each `.learn.ts` file contains examples of how to use the concept in nasty. Start in these files to see examples on how to use a concept.
+Each `.learn.ts` file contains examples of how to use the concept in ERA. Start in these files to see examples on how to use a concept.
 
 ### The `.test.ts` files
 
@@ -155,3 +155,6 @@ $ npm i
 ### Still Having issues?
 Join our [Discord](https://discord.com/channels/1215021133003235360/1215021133594890252) and get in touch!
 
+### Didn't this used to be called "NASTY"?
+
+It did! That was our internal name, but we renamed it based on community feedback

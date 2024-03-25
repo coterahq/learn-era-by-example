@@ -1,4 +1,4 @@
-import { Asc, Values } from "@cotera/nasty";
+import { Asc, Values } from "@cotera/era";
 import { db, CHANGE_ME } from "./helpers";
 import { describe, test, expect } from "vitest";
 
@@ -21,7 +21,7 @@ describe("Window Functions", () => {
           lag: CHANGE_ME(),
         };
       })
-      .sort((t) => Asc(t.attr("a")));
+      .orderBy((t) => Asc(t.attr("a")));
 
     expect(await query.execute(db())).toEqual([
       { a: 1, lead: 2, lag: null },
