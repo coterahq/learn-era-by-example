@@ -17,8 +17,8 @@
     "url": "https://github.com/coterahq/learn-era-by-example/issues"
   },
   "dependencies": {
-    "@cotera/era": "^0.0.31",
-    "@cotera/era-drivers": "^0.0.31"
+    "@cotera/era": "^0.0.33",
+    "@cotera/era-drivers": "^0.0.33"
   },
   "homepage": "https://github.com/coterahq/learn-era-by-example#readme",
   "devDependencies": {

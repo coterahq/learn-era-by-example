@@ -1,5 +1,4 @@
-// @ts-ignore
-import { DuckDbNativeDriver } from "@cotera/nasty-drivers";
+import { DuckDbNativeDriver } from "@cotera/era-drivers";
 
 export const CHANGE_ME = (..._vars: any[]) => {
   const err = new Error("CHANGE ME");
